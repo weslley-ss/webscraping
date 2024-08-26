@@ -22,8 +22,8 @@ def busca_google(termos = None):
     pagina = requests.get(url, headers = headers)
 
     if pagina.status_code == 200:
-        print("Website found successfully :)")
-        print(url) ## Exibindo a url para poder acompanhar os links e tags da página também no navegador
+        #print("Website found successfully :)")
+        print("Search: ", url) ## Exibindo a url para poder acompanhar os links e tags da página também no navegador
         html = pagina.text
         soup = BeautifulSoup(html, features='html.parser')
         return soup
@@ -60,7 +60,7 @@ def cria_soup(url = None):
         else:
             return None
     except Exception as e:
-        print(f"An error occurred: {e}")
+        #print(f"An error occurred: {e}")
         return None
 
 def extrair_texto_limpo(soup):
@@ -83,13 +83,23 @@ def remove_stopwords(texto, idioma = "portuguese"):
     # Tokenizar o texto
     palavras = word_tokenize(texto)
     
-    # Filtrar as palavras que não são stopwords
+    # Filtrar as palavras que não são stopwords e nem pontuações
     palavras_filtradas = []
     for palavra in palavras:
-        if palavra.lower() not in stop_words:
-            palavras_filtradas.append(palavra)
+        if palavra.lower() not in stop_words and palavra.isalpha():
+            palavras_filtradas.append(palavra.lower())
     
     # Juntar as palavras filtradas de volta em uma string
     texto_limpo = ' '.join(palavras_filtradas)
     
     return texto_limpo
+
+def verificar_texto_legivel(texto):
+    # Conta o número de caracteres "legíveis", ou seja, letras, números e espaços
+    caracteres_legiveis = sum(c.isalnum() or c.isspace() for c in texto)
+    
+    # Calcula a proporção de caracteres legíveis em relação ao comprimento total do texto
+    proporcao_legivel = caracteres_legiveis / len(texto)
+    
+    # Se mais de 70% do texto é legível, consideramos que é texto válido
+    return proporcao_legivel > 0.7
